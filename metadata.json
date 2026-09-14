@@ -1,0 +1,6 @@
+{
+  "name": "CreatorGrow",
+  "description": "Smart AI & SEO Tools to Accelerate Your YouTube Growth. 100% free creator growth tools for research, high-retention scripts, viral hooks, SEO optimization, and channel growth.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

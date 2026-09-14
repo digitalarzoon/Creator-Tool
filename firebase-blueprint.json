@@ -1,0 +1,123 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with YouTube preferences and role",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 150 },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "preferredNiche": { "type": "string", "maxLength": 100 },
+        "preferredLanguage": { "type": "string", "maxLength": 50 },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "Favorite": {
+      "title": "Favorite",
+      "description": "Saved favorite creator tools",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "toolId": { "type": "string", "maxLength": 100 },
+        "toolSlug": { "type": "string", "maxLength": 100 },
+        "toolName": { "type": "string", "maxLength": 150 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "toolId", "toolSlug", "toolName"]
+    },
+    "ToolHistory": {
+      "title": "ToolHistory",
+      "description": "Recently accessed tools by the user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "toolId": { "type": "string", "maxLength": 100 },
+        "toolSlug": { "type": "string", "maxLength": 100 },
+        "toolName": { "type": "string", "maxLength": 150 },
+        "usedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "toolId", "toolSlug", "toolName"]
+    },
+    "SavedResult": {
+      "title": "SavedResult",
+      "description": "Saved generator outputs like titles, scripts, hooks, or SEO plans",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "toolId": { "type": "string", "maxLength": 100 },
+        "toolSlug": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 250 },
+        "content": { "type": "string", "maxLength": 50000 },
+        "category": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "toolId", "title", "content"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Creator project containing ideas, scripts, and media concepts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "targetNiche": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "name"]
+    },
+    "Analysis": {
+      "title": "Analysis",
+      "description": "Saved YouTube video, channel, or competitor analysis",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "targetUrl": { "type": "string", "maxLength": 500 },
+        "targetTitle": { "type": "string", "maxLength": 300 },
+        "analysisType": { "type": "string", "enum": ["video", "channel", "competitor", "seo", "thumbnail"] },
+        "score": { "type": "number" },
+        "summary": { "type": "string", "maxLength": 5000 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "targetUrl", "analysisType"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile records"
+    },
+    "/users/{userId}/favorites/{favoriteId}": {
+      "schema": { "$ref": "#/entities/Favorite" },
+      "description": "User tool favorites"
+    },
+    "/users/{userId}/history/{historyId}": {
+      "schema": { "$ref": "#/entities/ToolHistory" },
+      "description": "Recently accessed tools by user"
+    },
+    "/users/{userId}/savedResults/{savedResultId}": {
+      "schema": { "$ref": "#/entities/SavedResult" },
+      "description": "User saved generated creator content"
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Creator projects"
+    },
+    "/users/{userId}/analyses/{analysisId}": {
+      "schema": { "$ref": "#/entities/Analysis" },
+      "description": "Saved channel and video audit analyses"
+    }
+  }
+}

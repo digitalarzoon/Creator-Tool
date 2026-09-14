@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" fill="none">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#00f2fe" flood-opacity="0.9"/>
+    </filter>
+    <linearGradient id="tri" x1="100" y1="80" x2="420" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <path d="M 140 85 C 140 70, 155 60, 170 68 L 415 228 C 432 238, 432 262, 415 272 L 170 432 C 155 440, 140 430, 140 415 Z" fill="url(#tri)"/>
+  <g filter="url(#glow)">
+    <path d="M 175 365 L 175 285" stroke="#00f2fe" stroke-width="16" stroke-linecap="round"/>
+    <path d="M 215 365 L 215 225" stroke="#00f2fe" stroke-width="16" stroke-linecap="round"/>
+    <path d="M 255 365 L 255 270" stroke="#00f2fe" stroke-width="16" stroke-linecap="round"/>
+    <path d="M 295 365 L 295 210" stroke="#00f2fe" stroke-width="16" stroke-linecap="round"/>
+    <path d="M 155 320 L 215 205 L 270 265 L 395 135" fill="none" stroke="#00f2fe" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 345 135 L 420 110 L 395 185 L 380 152 Z" fill="#00f2fe" stroke="#00f2fe" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+</svg>

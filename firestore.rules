@@ -1,0 +1,136 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'rock.arzoon@gmail.com'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUser(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 150 &&
+             data.role in ['user', 'admin'];
+    }
+
+    function isValidFavorite(data, userId) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId == userId &&
+             data.toolId is string && data.toolId.size() <= 100 &&
+             data.toolSlug is string && data.toolSlug.size() <= 100 &&
+             data.toolName is string && data.toolName.size() <= 150;
+    }
+
+    function isValidHistory(data, userId) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId == userId &&
+             data.toolId is string && data.toolId.size() <= 100 &&
+             data.toolSlug is string && data.toolSlug.size() <= 100 &&
+             data.toolName is string && data.toolName.size() <= 150;
+    }
+
+    function isValidSavedResult(data, userId) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId == userId &&
+             data.toolId is string && data.toolId.size() <= 100 &&
+             data.title is string && data.title.size() <= 250 &&
+             data.content is string && data.content.size() <= 50000;
+    }
+
+    function isValidProject(data, userId) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId == userId &&
+             data.name is string && data.name.size() <= 200;
+    }
+
+    function isValidAnalysis(data, userId) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId == userId &&
+             data.targetUrl is string && data.targetUrl.size() <= 500 &&
+             data.analysisType in ['video', 'channel', 'competitor', 'seo', 'thumbnail'];
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connectivity test document
+    match /test/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && isValidUser(incoming()) && incoming().role == 'user';
+      allow update: if (isOwner(userId) && isValidUser(incoming()) && incoming().role == existing().role && incoming().email == existing().email) || isAdmin();
+      allow delete: if isAdmin();
+
+      // Favorites
+      match /favorites/{favoriteId} {
+        allow get, list: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidId(favoriteId) && isValidFavorite(incoming(), userId);
+        allow delete: if isOwner(userId) || isAdmin();
+        allow update: if false;
+      }
+
+      // Tool History
+      match /history/{historyId} {
+        allow get, list: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidId(historyId) && isValidHistory(incoming(), userId);
+        allow delete: if isOwner(userId) || isAdmin();
+        allow update: if false;
+      }
+
+      // Saved Results
+      match /savedResults/{savedResultId} {
+        allow get, list: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidId(savedResultId) && isValidSavedResult(incoming(), userId);
+        allow update: if isOwner(userId) && isValidId(savedResultId) && isValidSavedResult(incoming(), userId);
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      // Projects
+      match /projects/{projectId} {
+        allow get, list: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidId(projectId) && isValidProject(incoming(), userId);
+        allow update: if isOwner(userId) && isValidId(projectId) && isValidProject(incoming(), userId);
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      // Analyses
+      match /analyses/{analysisId} {
+        allow get, list: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidId(analysisId) && isValidAnalysis(incoming(), userId);
+        allow delete: if isOwner(userId) || isAdmin();
+        allow update: if false;
+      }
+    }
+  }
+}
