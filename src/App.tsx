@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from './context/AuthContext.tsx';
 import { Navbar } from './components/layout/Navbar.tsx';
 import { Footer } from './components/layout/Footer.tsx';
@@ -62,6 +63,7 @@ export default function App() {
           </main>
           <GuestSyncToast />
           <Footer />
+          <Analytics />
         </div>
       </Router>
     </AuthProvider>
