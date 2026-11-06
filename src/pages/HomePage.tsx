@@ -44,6 +44,7 @@ export const HomePage: React.FC = () => {
   const shortsTools = TOOLS.filter(t => t.category === 'shorts').slice(0, 3);
 
   const searchExamples = [
+    { label: 'YouTube Transcript', q: 'transcript' },
     { label: 'Find keywords', q: 'keywords' },
     { label: 'Generate a video title', q: 'title' },
     { label: 'AI thumbnail generator', q: 'thumbnail' },

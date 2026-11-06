@@ -56,6 +56,7 @@ export const Footer: React.FC = () => {
               Featured Tools
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-500 dark:text-slate-400">
+              <li><Link to="/tools/youtube-transcript-generator" className="text-cyan-600 dark:text-cyan-400 font-bold hover:underline">Transcript Generator</Link></li>
               <li><Link to="/tools/youtube-title-generator" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Title Generator</Link></li>
               <li><Link to="/tools/youtube-thumbnail-downloader" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Thumbnail Downloader</Link></li>
               <li><Link to="/tools/ai-youtube-script-generator" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">AI Script Writer</Link></li>

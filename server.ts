@@ -8,7 +8,9 @@ import {
   fetchYouTubeVideoData, 
   extractYouTubeId,
   fetchYouTubeChannelData,
-  compareYouTubeChannels
+  compareYouTubeChannels,
+  fetchYouTubeTranscript,
+  processTranscriptAI
 } from './server/apiHandlers.ts';
 
 dotenv.config();
@@ -112,6 +114,48 @@ app.post('/api/youtube/compare', async (req, res) => {
   } catch (err: any) {
     console.error('YouTube Channel comparison error:', err);
     res.status(500).json({ error: err.message || 'Comparison Failed' });
+  }
+});
+
+// YouTube Transcript Generator
+app.get('/api/youtube/transcript', async (req, res) => {
+  try {
+    const queryUrl = (req.query.url as string) || (req.query.id as string) || (req.query.videoId as string) || '';
+    const requestedLang = (req.query.lang as string) || (req.query.language as string) || '';
+    if (!queryUrl) {
+      return res.status(400).json({ error: 'Please enter a valid YouTube video URL or ID.' });
+    }
+    const transcript = await fetchYouTubeTranscript(queryUrl, requestedLang);
+    res.json(transcript);
+  } catch (err: any) {
+    console.error('YouTube Transcript error:', err);
+    res.status(500).json({ error: err.message || 'Failed to extract transcript' });
+  }
+});
+
+app.post('/api/youtube/transcript', async (req, res) => {
+  try {
+    const queryUrl = req.body.url || req.body.videoId || (req.query.url as string) || '';
+    const requestedLang = req.body.lang || req.body.language || (req.query.lang as string) || '';
+    if (!queryUrl) {
+      return res.status(400).json({ error: 'Please enter a valid YouTube video URL or ID.' });
+    }
+    const transcript = await fetchYouTubeTranscript(queryUrl, requestedLang);
+    res.json(transcript);
+  } catch (err: any) {
+    console.error('YouTube Transcript error:', err);
+    res.status(500).json({ error: err.message || 'Failed to extract transcript' });
+  }
+});
+
+// Transcript AI Suite (Summarize, Chapters, Repurpose, SEO, Translate, Chat)
+app.post('/api/transcript/ai', async (req, res) => {
+  try {
+    const result = await processTranscriptAI(req.body);
+    res.json(result);
+  } catch (err: any) {
+    console.error('Transcript AI error:', err);
+    res.status(500).json({ error: err.message || 'Transcript AI processing failed' });
   }
 });
 

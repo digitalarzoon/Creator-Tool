@@ -21,6 +21,7 @@ import { getToolBySlug, TOOLS, CreatorTool } from '../data/tools.ts';
 import { IconHelper } from '../components/common/IconHelper.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
 import { ToolCard } from '../components/common/ToolCard.tsx';
+import { TranscriptGeneratorTool } from '../components/tools/TranscriptGeneratorTool.tsx';
 
 export const ToolDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -496,8 +497,14 @@ ${(cmp.actionPlan || []).map((step: string, i: number) => `${i + 1}. **${step}**
           </div>
         </div>
 
-        {/* Main Working Grid: Inputs & Results */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+        {/* Dedicated YouTube Transcript Generator Mode */}
+        {(tool.id === 'youtube-transcript-generator' || tool.slug === 'youtube-transcript-generator') ? (
+          <div className="mb-12">
+            <TranscriptGeneratorTool />
+          </div>
+        ) : (
+          /* Main Working Grid: Inputs & Results */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
           
           {/* Form Inputs (Cols 1-5) */}
           <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-5">
@@ -885,6 +892,7 @@ ${(cmp.actionPlan || []).map((step: string, i: number) => `${i + 1}. **${step}**
           </div>
 
         </div>
+      )}
 
         {/* Tool FAQ Accordion */}
         {tool.faq && tool.faq.length > 0 && (

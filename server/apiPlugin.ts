@@ -1,60 +1,68 @@
 import type { Plugin } from 'vite';
+import dotenv from 'dotenv';
 import { 
   generateAICreatorContent, 
   generateAIThumbnailImage, 
   fetchYouTubeVideoData, 
   extractYouTubeId,
   fetchYouTubeChannelData,
-  compareYouTubeChannels
+  compareYouTubeChannels,
+  fetchYouTubeTranscript,
+  processTranscriptAI
 } from './apiHandlers.ts';
+
+dotenv.config();
 
 export function apiPlugin(): Plugin {
   return {
     name: 'creator-grow-api-plugin',
     configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
+      server.middlewares.use((req, res, next) => {
         if (!req.url?.startsWith('/api/')) {
           return next();
         }
 
-        res.setHeader('Content-Type', 'application/json');
+        let rawBody = '';
+        req.on('data', chunk => {
+          rawBody += chunk;
+        });
 
-        const host = req.headers.host || 'localhost';
-        const url = new URL(req.url, `http://${host}`);
-        const pathname = url.pathname;
+        req.on('end', async () => {
+          res.setHeader('Content-Type', 'application/json');
 
-        try {
-          if (pathname === '/api/system/status') {
-            res.end(JSON.stringify({
-              status: 'operational',
-              geminiConfigured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'MY_GEMINI_API_KEY'),
-              youtubeApiConfigured: Boolean(process.env.YOUTUBE_API_KEY && process.env.YOUTUBE_API_KEY !== 'MY_YOUTUBE_API_KEY'),
-              version: '2.5.0'
-            }));
-            return;
-          }
+          const host = req.headers.host || 'localhost';
+          const url = new URL(req.url || '/', `http://${host}`);
+          const pathname = url.pathname;
 
-          if (pathname === '/api/ai/generate' && req.method === 'POST') {
-            let body = '';
-            for await (const chunk of req) {
-              body += chunk;
+          let bodyParams: any = {};
+          try {
+            if (rawBody) {
+              bodyParams = JSON.parse(rawBody);
             }
-            const params = JSON.parse(body || '{}');
-            const result = await generateAICreatorContent(params);
-            res.end(JSON.stringify(result));
-            return;
-          }
+          } catch (e) {}
 
-          if (pathname === '/api/ai/generate-thumbnail' && req.method === 'POST') {
-            let body = '';
-            for await (const chunk of req) {
-              body += chunk;
+          try {
+            if (pathname === '/api/system/status') {
+              res.end(JSON.stringify({
+                status: 'operational',
+                geminiConfigured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'MY_GEMINI_API_KEY'),
+                youtubeApiConfigured: Boolean(process.env.YOUTUBE_API_KEY && process.env.YOUTUBE_API_KEY !== 'MY_YOUTUBE_API_KEY'),
+                version: '2.5.0'
+              }));
+              return;
             }
-            const params = JSON.parse(body || '{}');
-            const result = await generateAIThumbnailImage(params);
-            res.end(JSON.stringify(result));
-            return;
-          }
+
+            if (pathname === '/api/ai/generate' && req.method === 'POST') {
+              const result = await generateAICreatorContent(bodyParams);
+              res.end(JSON.stringify(result));
+              return;
+            }
+
+            if (pathname === '/api/ai/generate-thumbnail' && req.method === 'POST') {
+              const result = await generateAIThumbnailImage(bodyParams);
+              res.end(JSON.stringify(result));
+              return;
+            }
 
           if (pathname === '/api/youtube/video') {
             const queryUrl = url.searchParams.get('url') || url.searchParams.get('id') || '';
@@ -84,20 +92,8 @@ export function apiPlugin(): Plugin {
 
           // Real Side-by-Side YouTube Channel Comparison
           if (pathname === '/api/youtube/compare' || pathname === '/api/youtube/competitor') {
-            let c1 = url.searchParams.get('c1') || url.searchParams.get('myChannel') || '';
-            let c2 = url.searchParams.get('c2') || url.searchParams.get('competitor') || '';
-
-            if (req.method === 'POST') {
-              let body = '';
-              for await (const chunk of req) {
-                body += chunk;
-              }
-              try {
-                const parsed = JSON.parse(body || '{}');
-                c1 = parsed.c1 || parsed.myChannel || c1;
-                c2 = parsed.c2 || parsed.competitor || c2;
-              } catch (e) {}
-            }
+            let c1 = url.searchParams.get('c1') || url.searchParams.get('myChannel') || bodyParams.c1 || bodyParams.myChannel || '';
+            let c2 = url.searchParams.get('c2') || url.searchParams.get('competitor') || bodyParams.c2 || bodyParams.competitor || '';
 
             if (!c1 || !c2) {
               res.statusCode = 400;
@@ -110,6 +106,29 @@ export function apiPlugin(): Plugin {
             return;
           }
 
+          // YouTube Transcript Generator API
+          if (pathname === '/api/youtube/transcript') {
+            const queryUrl = url.searchParams.get('url') || url.searchParams.get('id') || url.searchParams.get('videoId') || bodyParams.url || bodyParams.videoId || '';
+            const requestedLang = url.searchParams.get('lang') || url.searchParams.get('language') || bodyParams.lang || bodyParams.language || '';
+
+            if (!queryUrl) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Please enter a valid YouTube video URL or ID.' }));
+              return;
+            }
+
+            const transcriptData = await fetchYouTubeTranscript(queryUrl, requestedLang);
+            res.end(JSON.stringify(transcriptData));
+            return;
+          }
+
+          // Transcript AI Suite API (Summarize, Chapters, Repurpose, SEO, Translate, Chat)
+          if (pathname === '/api/transcript/ai' && req.method === 'POST') {
+            const aiResult = await processTranscriptAI(bodyParams);
+            res.end(JSON.stringify(aiResult));
+            return;
+          }
+
           res.statusCode = 404;
           res.end(JSON.stringify({ error: `Not found: ${pathname}` }));
         } catch (err: any) {
@@ -118,6 +137,7 @@ export function apiPlugin(): Plugin {
           res.end(JSON.stringify({ error: err.message || 'Internal server error' }));
         }
       });
-    }
-  };
+    });
+  }
+};
 }

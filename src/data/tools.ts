@@ -33,6 +33,30 @@ export const CATEGORIES = [
 ] as const;
 
 export const TOOLS: CreatorTool[] = [
+  {
+    id: 'youtube-transcript-generator',
+    slug: 'youtube-transcript-generator',
+    name: 'YouTube Transcript Generator',
+    category: 'create',
+    description: 'Extract complete YouTube transcripts in their true original language (Hindi, Nepali, Arabic, Japanese, Spanish, English, etc.) with timestamps, search, native track switcher, AI summarizer, chapter creator, and video chat.',
+    icon: 'FileText',
+    featured: true,
+    isPopular: true,
+    aiType: 'transcript',
+    inputs: [
+      { name: 'url', label: 'YouTube Video URL', type: 'url', placeholder: 'https://www.youtube.com/watch?v=... or youtu.be/...', required: true }
+    ],
+    faq: [
+      { q: 'Does it preserve the video’s original language?', a: 'Yes! If a video is in Hindi (हिन्दी), Nepali (नेपाली), Arabic (العربية), or Japanese (日本語), it extracts and renders the authentic original language script without forced translation.' },
+      { q: 'Can I download the transcript as subtitle files?', a: 'Yes, you can copy with/without timestamps or export directly as .TXT, .SRT, and .VTT with full UTF-8 Unicode support.' },
+      { q: 'What else can I do with the transcript?', a: 'You can generate AI summaries, YouTube chapters starting at 00:00, repurpose into blogs/social posts, generate SEO tags, and chat interactively with the video.' }
+    ],
+    instructions: [
+      'Paste any YouTube video or Shorts URL',
+      'Click Extract Transcript to load all dialogue segments in their original language',
+      'Use the tabs above the transcript to summarize, create chapters, repurpose, or chat'
+    ]
+  },
   // 1-14 RESEARCH TOOLS
   {
     id: 'youtube-keyword-research',

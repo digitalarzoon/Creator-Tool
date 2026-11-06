@@ -29,6 +29,7 @@ export const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   const navLinks = [
+    { label: 'Transcript', to: '/tools/youtube-transcript-generator', badge: 'New' },
     { label: 'Research', to: '/category/research' },
     { label: 'Create', to: '/category/create' },
     { label: 'Design', to: '/category/design' },
